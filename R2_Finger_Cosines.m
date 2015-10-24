@@ -1,15 +1,24 @@
-function theta4 = R2_Finger( theta )
-%R2_FINGER Takes 4 angles, plots the X-Y, X-Z output of the finger.
-%   Uses theta vector to construct D-H matrices.
+function theta4 = R2_Finger_Cosines( theta )
+%R2_FINGER Takes 3 angles (J1, J2, J3), plots the X-Y, X-Z finger pos.
+%   Uses theta vector to construct D-H matrices and the angle of J4.
+%   Uses D-H Matrices to construct every point on the finger.
 
 % Load Constants
 load('const.mat');
 
+% Distance to Proximal Point of Linkage (from J3 = link2)
 p3 = 0.259;
-d4 = 0.162;
-dp = 1.062;
-j43 = 1.2;
 
+% Distance to Distal Point of Linkage (from J4 = link3))
+d4 = 0.162;
+
+% Linkage Distance
+dp = l(5);
+
+% Medial Phalange Distance (J4 to J3)
+j43 = l(3);
+
+% Solve for J4 Angle
 theta3rad = deg2rad(theta(3));
 
 syms beta_angle
@@ -37,24 +46,32 @@ link2 = A1 * A2 * origin;
 link3 = A1 * A2 * A3 * origin;
 link4 = A1 * A2 * A3 * A4 * origin;
 
+% Proximal Linkage in link2 frame, then in world frame
+plink = [p3; 0; 0; 1];
+plink = A1 * A2 * plink;
+
+% Distal Linkage in link3 frame, then in world frame
+dlink = [d4 - l(4); 0; 0; 1];
+dlink = A1 * A2 * A3 * A4 * dlink;
+
 % Get position of each link
-x = [origin(1); link1(1); link2(1); link3(1); link4(1)];
-y = [origin(2); link1(2); link2(2); link3(2); link4(2)];
+x = [origin(1); link1(1); link2(1); link3(1); link4(1); plink(1); dlink(1)];
+y = [origin(2); link1(2); link2(2); link3(2); link4(2); plink(2); dlink(2)];
 
 % Note: Z-axis flipped for graphic purposes
-z = (-1) * [origin(3); link1(3); link2(3); link3(3); link4(3)];
+z = (-1) * [origin(3); link1(3); link2(3); link3(3); link4(3); plink(3); dlink(3)];
 
-figure(2);
-
-% Plot X-Y
+% Plot X-Yh
 subplot(1, 2, 2);
+hold on
 plot(x(1:2), y(1:2), x(2:3), y(2:3), x(3:4), y(3:4), x(4:5), y(4:5));
 title('X vs. Y (Top View)');
 axis([-3 6 -4 4]);
 
 % Plot X-Z
 subplot(1, 2, 1);
-plot(x(1:2), z(1:2), x(2:3), z(2:3), x(3:4), z(3:4), x(4:5), z(4:5));
+hold on
+plot(x(1:2), z(1:2), x(2:3), z(2:3), x(3:4), z(3:4), x(4:5), z(4:5), x(6:7), z(6:7));
 title('X vs. Z (Side View)');
 axis([-3 6 -4 4]);
 end

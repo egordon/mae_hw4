@@ -1,5 +1,6 @@
 function T = getT(l, alph, theta)
-%GETT Returns D-H matrix of joint
+%GETT Returns D-H matrix of joint at given angle and distance.
+
 Z = [   cosd(theta) -sind(theta) 0   0;
         sind(theta) cosd(theta) 0   0;
         0           0           1   0;
